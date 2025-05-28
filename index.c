@@ -1,7 +1,13 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include "src/view/users/users.h"
+#include "src/view/menu/menu.h"
 
-int main(void){
+// gcc index.c src/view/users/users.c src/view/menu/menu.c src/utils/utils.c -o index && ./index
 
-  return 0;
+int main() {
+
+    showMenu();
+    // User u1 = {1, "Terrestre"};
+    // test(u1);
+    return 0;
 }
