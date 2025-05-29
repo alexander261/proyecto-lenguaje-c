@@ -30,11 +30,11 @@ int getLastId(const char *filename, const char *key) {
 int updateLastId(const char *filename, const char *key, int newId) {
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
-        return 0; // Error
+        return 0;
     }
 
     // Cargamos todo en memoria
-    char lines[20][256]; // suponiendo como máximo 20 constantes
+    char lines[20][256];
     int lineCount = 0;
     char searchKey[100];
     sprintf(searchKey, "%s:", key);
@@ -87,7 +87,7 @@ int readLineFromFile(const char *filename, int lineNumber, char *resultLine) {
     }
 
     fclose(file);
-    return 0; // Línea no encontrada
+    return 0;
 }
 
 void getCurrentDate(char *destino, int tam) {

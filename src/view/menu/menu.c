@@ -3,8 +3,53 @@
 #include "menu.h"
 #include "../users/users.h"
 #include "../tasks/tasks.h"
+#include "../../utils/globals.h"
+
+
+int login(){
+
+    int idUserLogin=-1;
+
+    while(1){
+
+        char username[50];
+        char password[50];
+
+        printf("========= Sistema de Login =========\n");
+        printf("Usuario: ");
+        scanf("%s", username);
+
+        printf("Contraseña: ");
+        scanf("%s", password);
+
+        idUserLogin = searchCredentialsUser(username,password);
+
+        if(idUserLogin != -1){
+
+            printf("\n¡Login exitoso! Bienvenido, %s.\n", username);
+
+            break;
+        }else{
+
+            printf("\nAcceso denegado. Usuario o contraseña incorrectos.\n");
+
+        }
+
+    }
+
+    printf("\n\n");
+
+    ID_USER=idUserLogin;
+
+    printf("ID USER: %d",ID_USER);
+
+    showMenu();
+
+    return 1;
+}
 
 void showMenu() {
+
 
     int opcion;
 

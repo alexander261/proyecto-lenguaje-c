@@ -205,6 +205,37 @@ int showTableUsers(){
     return 1;
 }
 
+int searchCredentialsUser(char * username,char * password){
+
+    int maxID = getLastId("bdd/constants.txt", "last_id_user");
+
+    int ID=-1;
+
+    for(int row=1; row < maxID; row++){
+
+        char line[MAX_LINE];
+    
+        if (readLineFromFile("bdd/users.csv", row, line)) {
+            User user = parseUserFromCSVLine(line);
+
+            
+            if (strcmp(user.username, username) == 0 && 
+                strcmp(user.password, password) == 0 && 
+                user.status == 1 
+            ) {
+
+                ID = user.id;
+
+            }
+            
+        }
+
+    }
+
+    return ID;
+}
+
+
 int updateDataUser(const char *filename, int userId, const char *new_name, const char *new_last_name,const char * new_password,const int new_status) {
     
     FILE *file = fopen(filename, "r");
