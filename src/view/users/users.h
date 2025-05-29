@@ -1,9 +1,15 @@
 #pragma once
 #include "structs.h"
 
-void getCurrentDate(char *destino, int tam);
+void getDataDeleteUser(User *user);
 
-void getDataUser(User *user);
+void getDataUpdateUser(User *user);
+
+void getDataCreateUser(User *user);
+
+void printUserTableHeader();
+
+void printUserRow(User user);
 
 void printUser(User user);
 
@@ -11,4 +17,14 @@ int saveDataUser(User user);
 
 int createUser();
 
-void test(User u);
+User parseUserFromCSVLine(const char *line);
+
+int showTableUsers();
+
+int updateDataUser(const char *filename, int userId, const char *new_name, const char *new_last_name,const int new_status);
+
+int updateUser();
+
+int deleteUser();
+
+void showMenuUser();

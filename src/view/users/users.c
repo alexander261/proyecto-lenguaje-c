@@ -5,8 +5,33 @@
 #include "users.h"
 #include "../../utils/utils.h"
 
+#define MAX_LINE 1024
 
-void getDataUser(User *user){
+void getDataDeleteUser(User *user){
+
+    printf("Introduce el ID del usuario a desactivar: ");
+    scanf("%d", &user->id);
+
+}
+
+void getDataUpdateUser(User *user){
+
+    printf("Introduce el ID del usuario a actualizar: ");
+    scanf("%d", &user->id);
+
+    printf("Introduce el nuevo nombre: ");
+    scanf("%49s", user->name);
+
+    printf("Introduce el nuevo apellido: ");
+    scanf("%49s", user->last_name);
+
+}
+
+void getDataCreateUser(User *user){
+
+    int id = getLastId("bdd/constants.txt", "last_id_user");
+
+    user->id = id;
 
     printf("Introduce tu nombre: ");
     scanf("%49s", user->name);
@@ -18,7 +43,6 @@ void getDataUser(User *user){
     scanf("%49s", user->username);
 
     user->status=1;
-    user->id=5;
 
     strcpy(user->soft_delete,"");
 
@@ -26,18 +50,37 @@ void getDataUser(User *user){
 
 }
 
-
-void printUser(User user){
-
-    printf("ID: %d\n", user.id);
-    printf("Username: %s\n", user.username);
-    printf("Nombre: %s\n", user.name);
-    printf("Apellido: %s\n", user.last_name);
-    printf("Fecha y hora de registro: %s\n", user.create_at);
-    printf("Fecha Delete: %s\n", user.soft_delete);
-
+void printUserTableHeader() {
+    printf("\n| %-3s | %-15s | %-15s | %-15s | %-8s | %-19s | %-19s |\n",
+           "ID", "Username", "Nombre", "Apellido", "Estado", "Creado", "Eliminado");
+    printf("|%s|\n", "-----|-----------------|-----------------|-----------------|----------|---------------------|---------------------");
 }
 
+void printUserRow(User user) {
+    
+    printf("| %-3d | %-15s | %-15s | %-15s | %-8s | %-19s | %-19s |\n",
+        user.id,
+        user.username,
+        user.name,
+        user.last_name,
+        (user.status == 1) ? "Activo" : "Inactivo",
+        user.create_at,
+        user.soft_delete
+    );
+}
+
+void printUser(User user) {
+    printf("\n=====================================\n");
+    printf("     INFORMACIÓN DEL USUARIO\n");
+    printf("=====================================\n");
+    printf("  ID del Usuario       : %d\n", user.id);
+    printf("  Nombre de Usuario    : %s\n", user.username);
+    printf("  Nombre               : %s\n", user.name);
+    printf("  Apellido             : %s\n", user.last_name);
+    printf("  Registrado en        : %s\n", user.create_at);
+    printf("  Fecha de Eliminación: %s\n", user.soft_delete);
+    printf("=====================================\n");
+}
 
 int saveDataUser(User user){
  
@@ -64,10 +107,9 @@ int saveDataUser(User user){
 
 int createUser(){
 
-
     User user;
 
-    getDataUser(&user);
+    getDataCreateUser(&user);
 
     int statusCreate = saveDataUser(user);
 
@@ -78,9 +120,11 @@ int createUser(){
         return statusCreate;
     }
 
+    int id = getLastId("bdd/constants.txt", "last_id_user");
 
+    updateLastId("bdd/constants.txt", "last_id_user", id + 1);
 
-    printf("Usuario guardado correctamente.\n");
+    printf("\nUSUARIO CREADO CORRECTAMENTE.\n");
 
     printUser(user);
 
@@ -90,7 +134,7 @@ int createUser(){
 User parseUserFromCSVLine(const char *line) {
     
     User user;
-    char tempLine[1024];
+    char tempLine[MAX_LINE];
     strcpy(tempLine, line); 
 
     char *token = strtok(tempLine, ",");
@@ -112,79 +156,182 @@ User parseUserFromCSVLine(const char *line) {
     token = strtok(NULL, ",");
     strcpy(user.create_at, token); // create_at
 
-    // Elimina el salto de línea
-    size_t len = strlen(user.create_at);
-    if (len > 0 && user.create_at[len - 1] == '\n') {
-        user.create_at[len - 1] = '\0';
+
+    token = strtok(NULL, ",");
+    strcpy(user.soft_delete, token); // soft_delete
+
+    // Eliminamoss el salto de linea
+    size_t len = strlen(user.soft_delete);
+    if (len > 0 && user.soft_delete[len - 1] == '\n') {
+        user.soft_delete[len - 1] = '\0';
     }
 
     return user;
 }
 
+int showTableUsers(){
 
+    int maxID = getLastId("bdd/constants.txt", "last_id_user");
+
+    printf("\n\nTABLA DE USUARIOS\n");
+
+    printUserTableHeader();
+
+    for(int row=1; row < maxID; row++){
+
+        char line[MAX_LINE];
+    
+        if (readLineFromFile("bdd/users.csv", row, line)) {
+            User user = parseUserFromCSVLine(line);
+            printUserRow(user);
+        }
+
+    }
+
+    printf("\n\n");
+}
+
+int updateDataUser(const char *filename, int userId, const char *new_name, const char *new_last_name,const int new_status) {
+    
+    FILE *file = fopen(filename, "r");
+    
+    FILE *tempFile = fopen("bdd/temp_users.csv", "w");
+
+     
+    if (file == NULL || tempFile == NULL) {
+        return 0;
+    }
+
+    char line[MAX_LINE];
+    int updated = 0;
+
+    while (fgets(line, sizeof(line), file)) {
+        User user = parseUserFromCSVLine(line);
+
+        if (user.id == userId) {
+
+            strncpy(user.name, new_name, sizeof(user.name));
+
+            strncpy(user.last_name, new_last_name, sizeof(user.last_name));
+
+            user.status = new_status;
+
+            fprintf(tempFile, "%d,%s,%s,%s,%d,%s,%s\n",
+                user.id,
+                user.username,
+                user.name,
+                user.last_name,
+                user.status,
+                user.create_at,
+                user.soft_delete
+            );
+
+            updated = 1;
+
+        } else {
+
+            fputs(line, tempFile);
+
+        }
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    remove(filename);
+    rename("bdd/temp_users.csv", filename);
+
+    return updated;
+}
+
+int updateUser(){
+
+    showTableUsers();
+
+    User user;
+
+    getDataUpdateUser(&user);
+
+    int resultado = updateDataUser("bdd/users.csv", user.id, user.name, user.last_name,1);
+
+    if (!resultado) {
+        printf("\nNO SE ENCONTRO EL USUARIO A ACTUALIZAR.\n");
+
+        return 0;
+    }
+
+    printf("\nUSUARIO ACTUALIZADO CORRECTAMENTE.\n");
+    return 1;
+}
+
+int deleteUser(){
+
+    showTableUsers();
+
+    User user;
+
+    getDataDeleteUser(&user);
+
+    char line[MAX_LINE];    
+
+    if (!readLineFromFile("bdd/users.csv", user.id, line)) {
+
+        printf("\nNO SE ENCONTRO EL USUARIO A DESACTIVAR.\n");
+
+        return 0;
+    }
+
+    User userBDD = parseUserFromCSVLine(line);
+
+
+    int resultado = updateDataUser("bdd/users.csv", user.id, userBDD.name, userBDD.last_name,0);
+
+    if (!resultado) {
+        printf("\nNO SE ENCONTRO EL USUARIO A DESACTIVAR.\n");
+
+        return 0;
+    }
+
+    printf("\nUSUARIO DESACTIVADO CORRECTAMENTE.\n");
+
+    return 1;
+}
 
 void showMenuUser() {
     int opcion;
 
     do {
-        printf("\n=== MODULO DE USUARIOS ===\n");
-        printf("1. Crear usuario\n");
-        printf("2. Eliminar usuario\n");
-        printf("3. Actualizar usuario\n");
-        printf("4. Regresar\n");
-        printf("Seleccione una opcion: ");
+        printf("\n=====================================\n\n");
+        printf("   MÓDULO DE GESTIÓN DE USUARIOS\n\n");
+        printf("=====================================\n");
+        printf(" 1.  Ver todos los usuarios\n");
+        printf(" 2.  Crear nuevo usuario\n");
+        printf(" 3.  Actualizar datos de usuario\n");
+        printf(" 4.  Desactivar un usuario\n");
+        printf(" 5.  Volver al menú principal\n");
+        printf("-------------------------------------\n");
+        printf("Seleccione una opción (1-5): ");
+
         scanf("%d", &opcion);
 
         switch(opcion) {
             case 1:
-                // crearUsuario();
+                showTableUsers();
                 break;
             case 2:
-                // eliminarUsuario();
+                createUser();
                 break;
             case 3:
-                // actualizarUsuario();
+                updateUser();
                 break;
             case 4:
+                deleteUser();
+                break;
+            case 5:
                 printf("Regresando al menu principal...\n");
                 break;
             default:
                 printf("Opcion invalida. Intente de nuevo.\n");
         }
-    } while(opcion != 4);
-}
-
-void test2(){
-
-        char line[1024];
-    if (readLineFromFile("bdd/users.csv", 2, line)) {
-        User user = parseUserFromCSVLine(line);
-        printf("ID: %d\n", user.id);
-        printf("Username: %s\n", user.username);
-        printf("Name: %s %s\n", user.name, user.last_name);
-        printf("Status: %d\n", user.status);
-        printf("Created at: %s\n", user.create_at);
-    }
-
-    int id = getLastId("bdd/constants.txt", "last_id_user");
-
-    if (id != -1) {
-
-        int newId = id + 1;
-
-        // Usas newId para crear el nuevo usuario
-
-        updateLastId("bdd/constants.txt", "last_id_user", newId);
-
-    }
-}
-void test(User user) {
-
-    showMenuUser();
-    // createUser();
-    
-    // printf("ID: %d\n", user.id);
-    
-    // printf("user: %s\n", user.username);
-
+    } while(opcion != 5);
 }

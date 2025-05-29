@@ -1,2 +1,2 @@
-last_id_user:17;
-last_id_test:646;
+last_id_user:4;
+last_id_task:2;
