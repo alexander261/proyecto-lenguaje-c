@@ -3,6 +3,7 @@
     typedef struct {
         int id;
         char username[50];
+        char password[50];
         char name[50];
         char last_name[50];
         int status;

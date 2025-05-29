@@ -187,6 +187,8 @@ int showTableTasks(){
     }
 
     printf("\n\n");
+
+    return 1;
 }
 
 

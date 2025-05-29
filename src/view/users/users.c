@@ -25,6 +25,10 @@ void getDataUpdateUser(User *user){
     printf("Introduce el nuevo apellido: ");
     scanf("%49s", user->last_name);
 
+
+    printf("Introduce tu nueva contrasenia: ");
+    scanf("%49s", user->password);
+
 }
 
 void getDataCreateUser(User *user){
@@ -39,8 +43,11 @@ void getDataCreateUser(User *user){
     printf("Introduce tu apellido: ");
     scanf("%49s", user->last_name);
 
-    printf("Introduce tu nombre de usuario: ");
+    printf("Introduce tu usuario: ");
     scanf("%49s", user->username);
+
+    printf("Introduce tu contrasenia: ");
+    scanf("%49s", user->password);
 
     user->status=1;
 
@@ -90,9 +97,10 @@ int saveDataUser(User user){
         return 0;
     }
 
-    fprintf(archivo, "%d,%s,%s,%s,%d,%s,%s\n",
+    fprintf(archivo, "%d,%s,%s,%s,%s,%d,%s,%s\n",
         user.id,
         user.username,
+        user.password,
         user.name,
         user.last_name,
         user.status,
@@ -144,6 +152,10 @@ User parseUserFromCSVLine(const char *line) {
     token = strtok(NULL, ",");
     strcpy(user.username, token); // username
 
+
+    token = strtok(NULL, ",");
+    strcpy(user.password, token); // password
+
     token = strtok(NULL, ",");
     strcpy(user.name, token); // name
 
@@ -189,9 +201,11 @@ int showTableUsers(){
     }
 
     printf("\n\n");
+
+    return 1;
 }
 
-int updateDataUser(const char *filename, int userId, const char *new_name, const char *new_last_name,const int new_status) {
+int updateDataUser(const char *filename, int userId, const char *new_name, const char *new_last_name,const char * new_password,const int new_status) {
     
     FILE *file = fopen(filename, "r");
     
@@ -214,11 +228,15 @@ int updateDataUser(const char *filename, int userId, const char *new_name, const
 
             strncpy(user.last_name, new_last_name, sizeof(user.last_name));
 
+
+            strncpy(user.password, new_password, sizeof(user.password));
+            
             user.status = new_status;
 
-            fprintf(tempFile, "%d,%s,%s,%s,%d,%s,%s\n",
+            fprintf(tempFile, "%d,%s,%s,%s,%s,%d,%s,%s\n",
                 user.id,
                 user.username,
+                user.password,
                 user.name,
                 user.last_name,
                 user.status,
@@ -252,7 +270,7 @@ int updateUser(){
 
     getDataUpdateUser(&user);
 
-    int resultado = updateDataUser("bdd/users.csv", user.id, user.name, user.last_name,1);
+    int resultado = updateDataUser("bdd/users.csv", user.id, user.name, user.last_name,user.password,1);
 
     if (!resultado) {
         printf("\nNO SE ENCONTRO EL USUARIO A ACTUALIZAR.\n");
@@ -284,7 +302,7 @@ int deleteUser(){
     User userBDD = parseUserFromCSVLine(line);
 
 
-    int resultado = updateDataUser("bdd/users.csv", user.id, userBDD.name, userBDD.last_name,0);
+    int resultado = updateDataUser("bdd/users.csv", user.id, userBDD.name, userBDD.last_name,userBDD.password,0);
 
     if (!resultado) {
         printf("\nNO SE ENCONTRO EL USUARIO A DESACTIVAR.\n");

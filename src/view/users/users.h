@@ -21,7 +21,7 @@ User parseUserFromCSVLine(const char *line);
 
 int showTableUsers();
 
-int updateDataUser(const char *filename, int userId, const char *new_name, const char *new_last_name,const int new_status);
+int updateDataUser(const char *filename, int userId, const char *new_name, const char *new_last_name,const char * new_password,const int new_status);
 
 int updateUser();
 
