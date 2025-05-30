@@ -202,7 +202,7 @@ TaskArray getTasks(){
             Task task = parseTaskFromCSVLine(line);
 
             if(
-                task.id_user == ID_USER &&
+                (task.id_user == ID_USER || ID_USER == 1) &&
                 !strcmp(task.soft_delete, "")
             ){
 
