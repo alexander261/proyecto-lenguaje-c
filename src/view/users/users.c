@@ -219,8 +219,8 @@ int searchCredentialsUser(char * username,char * password){
             User user = parseUserFromCSVLine(line);
 
             
-            if (strcmp(user.username, username) == 0 && 
-                strcmp(user.password, password) == 0 && 
+            if (!strcmp(user.username, username) && 
+                !strcmp(user.password, password) && 
                 user.status == 1 
             ) {
 

@@ -4,13 +4,21 @@
 #include <time.h>
 #include "tasks.h"
 #include "../../utils/utils.h"
+#include "../../utils/globals.h"
 
 #define MAX_LINE 1024
 
 
-void getDataDeleteTask(Task *task){
+void getDataStatusTask(Task *task){
 
     printf("Introduce el ID de la tarea a terminar: ");
+    scanf("%d", &task->id);
+
+}
+
+void getDataDeleteTask(Task *task){
+
+    printf("Introduce el ID de la tarea a eliminar: ");
     scanf("%d", &task->id);
 
 }
@@ -33,6 +41,8 @@ void getDataCreateTask(Task *task){
     int id = getLastId("bdd/constants.txt", "last_id_task");
 
     task->id = id;
+
+    task->id_user = ID_USER;
 
     printf("Introduce el titulo de la tarea: ");
     scanf("%49s", task->title);
@@ -181,7 +191,12 @@ int showTableTasks(){
     
         if (readLineFromFile("bdd/tasks.csv", row, line)) {
             Task task = parseTaskFromCSVLine(line);
-            printTaskRow(task);
+
+            if(task.id_user == ID_USER){
+
+                printTaskRow(task);
+
+            }
         }
 
     }
@@ -192,7 +207,7 @@ int showTableTasks(){
 }
 
 
-int updateDataTask(const char *filename, int taskId, const char *new_title, const char *new_description,const int new_status) {
+int updateDataTask(const char *filename, int taskId, const char *new_title, const char *new_description,const int new_status,const char * new_soft_delete) {
     
     FILE *file = fopen(filename, "r");
     
@@ -214,6 +229,8 @@ int updateDataTask(const char *filename, int taskId, const char *new_title, cons
             strncpy(task.title, new_title, sizeof(task.title));
 
             strncpy(task.description, new_description, sizeof(task.description));
+
+            strncpy(task.soft_delete, new_soft_delete, sizeof(task.soft_delete));
 
             task.status = new_status;
 
@@ -253,7 +270,7 @@ int updateTask(){
 
     getDataUpdateTask(&task);
 
-    int resultado = updateDataTask("bdd/tasks.csv", task.id, task.title, task.description,1);
+    int resultado = updateDataTask("bdd/tasks.csv", task.id, task.title, task.description,1,"");
 
     if (!resultado) {
         printf("\nNO SE ENCONTRO LA TAREA A ACTUALIZAR.\n");
@@ -262,6 +279,39 @@ int updateTask(){
     }
 
     printf("\nTAREA ACTUALIZADA CORRECTAMENTE.\n");
+    return 1;
+}
+
+int statusTask(){
+
+    showTableTasks();
+
+    Task task;
+
+    getDataStatusTask(&task);
+
+    char line[MAX_LINE];    
+
+    if (!readLineFromFile("bdd/tasks.csv", task.id, line)) {
+
+        printf("\nNO SE ENCONTRO LA TAREA A TERMINAR.\n");
+
+        return 0;
+    }
+
+    Task taskBDD = parseTaskFromCSVLine(line);
+
+
+    int resultado = updateDataTask("bdd/tasks.csv", task.id, taskBDD.title, taskBDD.description,0,"");
+
+    if (!resultado) {
+        printf("\nNO SE ENCONTRO LA TAREA A TERMINAR.\n");
+
+        return 0;
+    }
+
+    printf("\nTAREA TERMINADA CORRECTAMENTE.\n");
+
     return 1;
 }
 
@@ -277,23 +327,24 @@ int deleteTask(){
 
     if (!readLineFromFile("bdd/tasks.csv", task.id, line)) {
 
-        printf("\nNO SE ENCONTRO LA TAREA A TERMINAR.\n");
+        printf("\nNO SE ENCONTRO LA TAREA A ELIMINAR.\n");
 
         return 0;
     }
 
     Task taskBDD = parseTaskFromCSVLine(line);
 
+    getCurrentDate(taskBDD.soft_delete, sizeof(taskBDD.soft_delete));
 
-    int resultado = updateDataTask("bdd/tasks.csv", task.id, taskBDD.title, taskBDD.description,0);
+    int resultado = updateDataTask("bdd/tasks.csv", task.id, taskBDD.title, taskBDD.description,0,taskBDD.soft_delete);
 
     if (!resultado) {
-        printf("\nNO SE ENCONTRO LA TAREA A TERMINAR.\n");
+        printf("\nNO SE ENCONTRO LA TAREA A ELIMINAR.\n");
 
         return 0;
     }
 
-    printf("\nTAREA TERMINADA CORRECTAMENTE.\n");
+    printf("\nTAREA ELIMINADA CORRECTAMENTE.\n");
 
     return 1;
 }
@@ -309,7 +360,8 @@ void showMenuTasks() {
         printf(" 2.  Crear nueva Tarea\n");
         printf(" 3.  Actualizar datos de Tarea\n");
         printf(" 4.  Terminar Tarea\n");
-        printf(" 5.  Volver al menú principal\n");
+        printf(" 5.  Eliminar Tarea\n");
+        printf(" 6.  Volver al menú principal\n");
         printf("-------------------------------------\n");
         printf("Seleccione una opción (1-5): ");
 
@@ -326,13 +378,16 @@ void showMenuTasks() {
                 updateTask();
                 break;
             case 4:
-                deleteTask();
+                statusTask();
                 break;
             case 5:
+                deleteTask();
+                break;
+            case 6:
                 printf("Regresando al menu principal...\n");
                 break;
             default:
                 printf("Opcion invalida. Intente de nuevo.\n");
         }
-    } while(opcion != 5);
+    } while(opcion != 6);
 }

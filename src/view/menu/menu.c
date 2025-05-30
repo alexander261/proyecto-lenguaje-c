@@ -29,17 +29,15 @@ int login(){
             printf("\n¡Login exitoso! Bienvenido, %s.\n", username);
 
             break;
-        }else{
-
-            printf("\nAcceso denegado. Usuario o contraseña incorrectos.\n");
-
         }
+        
+        printf("\nAcceso denegado. Usuario o contraseña incorrectos.\n");
 
     }
 
     printf("\n\n");
 
-    ID_USER=idUserLogin;
+    ID_USER = idUserLogin;
 
     printf("ID USER: %d",ID_USER);
 

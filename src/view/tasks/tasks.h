@@ -1,6 +1,8 @@
 #pragma once
 #include "structs.h"
 
+void getDataStatusTask(Task *task);
+
 void getDataDeleteTask(Task *task);
 
 void getDataUpdateTask(Task *task);
@@ -21,10 +23,10 @@ Task parseTaskFromCSVLine(const char *line);
 
 int showTableTasks();
 
-int updateDataTask(const char *filename, int taskId, const char *new_title, const char *new_description,const int new_status);
+int updateDataTask(const char *filename, int taskId, const char *new_title, const char *new_description,const int new_status,const char * new_soft_delete);
 
 int updateTask();
 
-int deleteTask();
+int statusTask();
 
 void showMenuTasks();
