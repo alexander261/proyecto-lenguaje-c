@@ -7,6 +7,16 @@
 
 #define MAX_LINE 1024
 
+
+User * generateArrayUsers(int n){
+    return malloc(n * sizeof(User));
+}
+
+
+User * updateZiseArrayUsers(User * user,int n){
+    return realloc(user,n * sizeof(User));
+}
+
 void getDataDeleteUser(User *user){
 
     printf("Introduce el ID del usuario a desactivar: ");
@@ -181,26 +191,51 @@ User parseUserFromCSVLine(const char *line) {
     return user;
 }
 
-int showTableUsers(){
+
+UserArray getUsers(){
 
     int maxID = getLastId("bdd/constants.txt", "last_id_user");
+    
+    UserArray users;
 
-    printf("\n\nTABLA DE USUARIOS\n");
-
-    printUserTableHeader();
+    users.length = 0;
+    users.array = generateArrayUsers(users.length);
 
     for(int row=1; row < maxID; row++){
 
         char line[MAX_LINE];
     
         if (readLineFromFile("bdd/users.csv", row, line)) {
-            User user = parseUserFromCSVLine(line);
-            printUserRow(user);
+
+            users.array = updateZiseArrayUsers(users.array,users.length + 1);
+            users.array[users.length] = parseUserFromCSVLine(line);
+            users.length++;
+        
         }
 
     }
 
+    return users;
+}
+
+
+int showTableUsers(){
+
+    UserArray users = getUsers();
+
+    printf("\n\nTABLA DE USUARIOS\n");
+
+    printUserTableHeader();
+
+    for(int row = 0; row < users.length; row++){
+
+        printUserRow(users.array[row]);
+
+    }
+
     printf("\n\n");
+
+    free(users.array);
 
     return 1;
 }

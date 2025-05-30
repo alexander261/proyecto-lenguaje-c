@@ -1,2 +1,2 @@
-last_id_user:3;
-last_id_task:4;
+last_id_user:2;
+last_id_task:1;

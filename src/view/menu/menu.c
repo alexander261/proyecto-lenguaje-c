@@ -15,7 +15,9 @@ int login(){
         char username[50];
         char password[50];
 
-        printf("========= Sistema de Login =========\n");
+        printf("\n=====================================\n\n");
+        printf("        INICIAR SESION\n\n");
+        printf("=====================================\n");
         printf("Usuario: ");
         scanf("%s", username);
 
@@ -39,8 +41,6 @@ int login(){
 
     ID_USER = idUserLogin;
 
-    printf("ID USER: %d",ID_USER);
-
     showMenu();
 
     return 1;
@@ -62,12 +62,17 @@ void showMenu() {
         printf("Seleccione una opción (1-3): ");
         scanf("%d", &opcion);
 
+
+        printf("\n\n\n\n");
         switch(opcion) {
             case 1:
+
                 showMenuUser();
+                printf("\n\n\n\n");
             break;
             case 2:
                 showMenuTasks();
+                printf("\n\n\n\n");
                 break;
             case 3:
                 printf("Cerrando sesion... Hasta luego.\n");

@@ -1,6 +1,10 @@
 #pragma once
 #include "structs.h"
 
+Task * generateArrayTask(int n);
+
+Task * updateZiseArrayTask(Task * task,int n);
+
 void getDataStatusTask(Task *task);
 
 void getDataDeleteTask(Task *task);
@@ -20,6 +24,8 @@ int saveDataTask(Task task);
 int createTask();
 
 Task parseTaskFromCSVLine(const char *line);
+
+TaskArray getTasks();
 
 int showTableTasks();
 

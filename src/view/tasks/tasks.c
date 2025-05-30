@@ -8,6 +8,13 @@
 
 #define MAX_LINE 1024
 
+Task * generateArrayTask(int n){
+    return malloc(n * sizeof(Task));
+}
+
+Task * updateZiseArrayTask(Task * task,int n){
+    return realloc(task,n * sizeof(Task));
+}
 
 void getDataStatusTask(Task *task){
 
@@ -177,32 +184,61 @@ Task parseTaskFromCSVLine(const char *line) {
     return task;
 }
 
-int showTableTasks(){
+TaskArray getTasks(){
 
     int maxID = getLastId("bdd/constants.txt", "last_id_task");
+    
+    TaskArray tasks;
 
-    printf("\n\nTABLA DE TAREAS\n");
-
-    printTaskTableHeader();
+    tasks.length = 0;
+    tasks.array = generateArrayTask(tasks.length);
 
     for(int row=1; row < maxID; row++){
 
         char line[MAX_LINE];
     
         if (readLineFromFile("bdd/tasks.csv", row, line)) {
+
             Task task = parseTaskFromCSVLine(line);
 
-            if(task.id_user == ID_USER){
+            if(
+                task.id_user == ID_USER &&
+                !strcmp(task.soft_delete, "")
+            ){
 
-                printTaskRow(task);
+                tasks.array = updateZiseArrayTask(tasks.array,tasks.length + 1);
+                tasks.array[tasks.length] = task;
+                tasks.length++;
 
             }
+
+        
         }
+
+    }
+
+    return tasks;
+}
+
+
+int showTableTasks(){
+
+    TaskArray tasks = getTasks();
+
+    printf("\n\nTABLA DE TAREAS\n");
+
+    printTaskTableHeader();
+
+    for(int row = 0; row < tasks.length; row++){
+
+        printTaskRow(tasks.array[row]);
 
     }
 
     printf("\n\n");
 
+    free(tasks.array);
+    
     return 1;
 }
 
